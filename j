@@ -29,13 +29,9 @@ pipeline {
             }
         }
 
-        stage('docker push') {
+        stage('docker login') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    sh '''
-                        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-                        docker push $DOCKER_IMAGE
-                    '''
+              sh 'docker login -u mdaakhil -p dckr_pat_kXDrusXZjYW0b47KyeTuNNb32K8'
                 }
             }
         }
