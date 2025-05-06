@@ -37,6 +37,7 @@ pipeline {
         stage('docker push') {
             steps {
               sh 'docker push mdaakhil/maven-web-application:1'
+
                 }
             }
         }
