@@ -1,1 +1,36 @@
+pipeline {
+    agent any
 
+    tools {
+        maven 'Maven3.8.2'
+        jdk 'openJDK11'
+    }
+
+    stages {
+        stage('SCM') {
+            steps {
+                git url: 'https://github.com/Mraakhil/dockertheend.git', branch: 'main'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('docker build') {
+            steps {
+                sh 'docker build -t mdaakhil/maven-web-application .'
+            }
+        }
+
+       
+        stage('docker push') {
+            steps {
+              sh 'docker push 744074487898.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo:1'
+
+                }
+            }
+        }
+    }
