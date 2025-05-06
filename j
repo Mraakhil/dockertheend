@@ -25,7 +25,7 @@ pipeline {
 
         stage('docker build') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE .'
+                sh 'docker build -t mdaakhil/maven-web-application .'
             }
         }
 
