@@ -21,15 +21,7 @@ pipeline {
 
         stage('Login to AWS ECR') {
             steps {
-                sh '''
-                if ! command -v aws &> /dev/null
-                then
-                    echo "❌ AWS CLI is not installed. Please install it on this Jenkins agent."
-                    exit 1
-                fi
-
-                aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
-                '''
+                sh 'aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO'
             }
         }
 
