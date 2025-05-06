@@ -12,19 +12,19 @@ pipeline {
                 git url: 'https://github.com/Mraakhil/dockertheend.git', branch: 'main'
             }
         }
-        stage('SCM') {
+        stage('SCM1') {
             steps {
                sh 'aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 744074487898.dkr.ecr.ap-south-1.amazonaws.com'
             }
-        } stage('SCM') {
+        } stage('SCM2') {
             steps {
                sh 'docker build -t my-ecr-repo .'
             }
-        } stage('SCM') {
+        } stage('SCM3') {
             steps {
                 sh 'docker tag my-ecr-repo:latest 744074487898.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo:latest'
             }
-        } stage('SCM') {
+        } stage('SCM4') {
             steps {
                sh 'docker push 744074487898.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo:latest'
                }
