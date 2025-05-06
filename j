@@ -36,7 +36,7 @@ pipeline {
             }
         stage('docker push') {
             steps {
-              sh 'docker build -t mdaakhil/maven-web-application:latest .'
+              sh 'docker push mdaakhil/maven-web-application:1'
                 }
             }
         }
