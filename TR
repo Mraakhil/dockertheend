@@ -6,31 +6,49 @@ pipeline {
         jdk 'openJDK11'
     }
 
+    environment {
+        AWS_REGION = 'ap-south-1'
+        ECR_REPO = '744074487898.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo'
+        IMAGE_TAG = 'latest'
+    }
+
     stages {
-        stage('SCM') {
+        stage('Clone Repository') {
             steps {
                 git url: 'https://github.com/Mraakhil/dockertheend.git', branch: 'main'
             }
         }
-        stage('SCM1') {
-            steps {
-               sh 'aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 744074487898.dkr.ecr.ap-south-1.amazonaws.com'
-            }
-        } 
-       stage('SCM2') {
-            steps {
-               sh 'docker build -t my-ecr-repo .'
-            }
-        } 
-       stage('SCM3') {
-            steps {
-                sh 'docker tag my-ecr-repo:latest 744074487898.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo:latest'
-            }
-        }
-       stage('SCM4') {
-            steps {
-               sh 'docker push 744074487898.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo:latest'
-               }
-        }
-  }
 
+        stage('Login to AWS ECR') {
+            steps {
+                sh '''
+                if ! command -v aws &> /dev/null
+                then
+                    echo "❌ AWS CLI is not installed. Please install it on this Jenkins agent."
+                    exit 1
+                fi
+
+                aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
+                '''
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t my-ecr-repo .'
+            }
+        }
+
+        stage('Tag Docker Image') {
+            steps {
+                sh 'docker tag my-ecr-repo:latest $ECR_REPO:$IMAGE_TAG'
+            }
+        }
+
+        stage('Push Docker Image to ECR') {
+            steps {
+                sh 'docker push $ECR_REPO:$IMAGE_TAG'
+            }
+        }
+    }
+}
