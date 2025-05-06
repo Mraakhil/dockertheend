@@ -34,5 +34,10 @@ pipeline {
               sh 'docker login -u mdaakhil -p dckr_pat_kXDrusXZjYW0b47KyeTuNNb32K8'
                 }
             }
+        stage('docker push') {
+            steps {
+              sh 'docker push mdaakhil/maven-web-application:1'
+                }
+            }
         }
     }
