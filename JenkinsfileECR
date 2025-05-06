@@ -34,7 +34,7 @@ pipeline {
             }
      stage('docker pusWTWYh') {
             steps {
-              sh 'docker push 744074487898.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo:1'
+              sh 'docker push 744074487898.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo:latest'
 
                 }
             }
