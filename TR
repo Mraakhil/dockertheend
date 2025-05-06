@@ -16,18 +16,21 @@ pipeline {
             steps {
                sh 'aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 744074487898.dkr.ecr.ap-south-1.amazonaws.com'
             }
-        } stage('SCM2') {
+        } 
+       stage('SCM2') {
             steps {
                sh 'docker build -t my-ecr-repo .'
             }
-        } stage('SCM3') {
+        } 
+       stage('SCM3') {
             steps {
                 sh 'docker tag my-ecr-repo:latest 744074487898.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo:latest'
             }
-        } stage('SCM4') {
+        }
+       stage('SCM4') {
             steps {
                sh 'docker push 744074487898.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo:latest'
                }
         }
   }
-}
+
