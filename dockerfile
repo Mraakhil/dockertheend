@@ -7,5 +7,5 @@ RUN javac HelloWorld/Main.java
 RUN java -cp . HelloWorld.Main
 RUN jar cfme Main.jar Manifest.txt HelloWorld.Main HelloWorld/Main.class
 ENTRYPOINT ["java","-jar","Main.jar"] 
-EXPOSE 8082
+EXPOSE 8082   
 
