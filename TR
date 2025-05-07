@@ -39,7 +39,7 @@ pipeline {
         }
         stage('Run Docker Image') {
             steps {
-                sh 'docker run -p 8080:8082 $ECR_REPO:$IMAGE_TAG'
+                sh 'docker run -p 8082:8080 $ECR_REPO:$IMAGE_TAG'
             }
         }
     }
