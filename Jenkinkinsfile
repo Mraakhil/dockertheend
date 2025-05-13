@@ -4,6 +4,8 @@ parameters {
         string(name: 'AWS_REGION', defaultValue: 'ap-south-1', description: 'AWS region for deployment')
         string(name: 'ECR_REPO', defaultValue: '744074487898.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo', description: 'ECR repository URI')
         string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag')
+        string(name: 'git_url', defaultVAlue: 'https://github.com/Mraakhil/dockertheend.git')
+        string(name: 'git_branch', defaultValue: 'main'
     }
 
     tools {
@@ -15,7 +17,7 @@ parameters {
     stages {
         stage('Clone Repository') {
             steps {
-                git url: 'https://github.com/Mraakhil/dockertheend.git', branch: 'main'
+                git url: '$git_url', branch: '$git_branch'
             }
         }
 
