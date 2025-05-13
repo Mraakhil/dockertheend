@@ -1,5 +1,5 @@
-ARG PACKAGE
 FROM openjdk:8
+ARG PACKAGE
 WORKDIR /tmp
 RUN wget ${PACKAGE}
 RUN unzip master.zip
