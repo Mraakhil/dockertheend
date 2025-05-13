@@ -5,7 +5,7 @@ parameters {
         string(name: 'ECR_REPO', defaultValue: '744074487898.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo', description: 'ECR repository URI')
         string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag')
         string(name: 'git_url', defaultVAlue: 'https://github.com/Mraakhil/dockertheend.git')
-        string(name: 'git_branch', defaultValue: 'main'
+        string(name: 'git_branch', defaultValue: 'main')
     }
 
     tools {
