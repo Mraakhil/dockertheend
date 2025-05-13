@@ -17,7 +17,7 @@ parameters {
     stages {
         stage('Clone Repository') {
             steps {
-                git url: '$git_url', branch: '$git_branch'
+                git url: 'https://github.com/Mraakhil/dockertheend.git', branch: 'main'
             }
         }
 
