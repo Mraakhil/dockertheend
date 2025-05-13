@@ -1,0 +1,54 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'AWS_REGION', defaultValue: 'ap-south-1', description: 'AWS region for deployment')
+        string(name: 'ECR_REPO', defaultValue: '744074487898.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo', description: 'ECR repository URI')
+        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag') 
+        string(name: 'jar', defaultValue: 'https://github.com/macagua/example.java.helloworld/archive/refs/heads/master.zip')
+    }
+
+    tools {
+        maven 'Maven3.8.2'
+        jdk 'openJDK11'
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git url: 'https://github.com/Mraakhil/dockertheend.git', branch: 'main'
+            }
+        }
+
+        stage('Login to AWS ECR') {
+            steps {
+                sh "aws ecr get-login-password --region ${params.AWS_REGION} | docker login --username AWS --password-stdin ${params.ECR_REPO}"
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                echo "Building Docker image with PACKAGE=${params.jar}"
+                sh "docker build -t my-ecr-repo --build-arg PACKAGE=${params.jar} ."
+            }
+        }
+
+        stage('Tag Docker Image') {
+            steps {
+                sh "docker tag my-ecr-repo:latest ${params.ECR_REPO}:${params.IMAGE_TAG}"
+            }
+        }
+
+        stage('Push Docker Image to ECR') {
+            steps {
+                sh "docker push ${params.ECR_REPO}:${params.IMAGE_TAG}"
+            }
+        }
+
+        stage('Run Docker Image') {
+            steps {
+                sh "docker run -p 8082:8080 ${params.ECR_REPO}:${params.IMAGE_TAG}"
+            }
+        }
+    }
+}
