@@ -1,6 +1,7 @@
+ARG jar
 FROM openjdk:8
 WORKDIR /tmp
-RUN wget https://github.com/macagua/example.java.helloworld/archive/refs/heads/master.zip
+RUN wget $jar
 RUN unzip master.zip
 WORKDIR /tmp/example.java.helloworld-master
 RUN javac HelloWorld/Main.java
