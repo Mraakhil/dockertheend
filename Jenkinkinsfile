@@ -30,7 +30,7 @@ parameters {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t my-ecr-repo --build-arg PACKAGE=$jar .'
+                sh "docker build -t my-ecr-repo --build-arg PACKAGE=$jar ."
             }
         }
 
