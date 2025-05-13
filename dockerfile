@@ -1,7 +1,7 @@
-ARG jar
+ARG PACKAGE
 FROM openjdk:8
 WORKDIR /tmp
-RUN wget $jar
+RUN wget $PACKAGE
 RUN unzip master.zip
 WORKDIR /tmp/example.java.helloworld-master
 RUN javac HelloWorld/Main.java
