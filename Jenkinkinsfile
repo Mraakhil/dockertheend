@@ -6,6 +6,8 @@ parameters {
         string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag') 
     }
 
+
+
     tools {
         maven 'Maven3.8.2'
         jdk 'openJDK11'
