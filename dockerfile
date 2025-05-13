@@ -1,4 +1,4 @@
-def PACKAGE
+ARG PACKAGE
 FROM openjdk:8
 WORKDIR /tmp
 RUN wget $PACKAGE
