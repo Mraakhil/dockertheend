@@ -2,7 +2,7 @@ pipeline {
     agent any
 parameters {
         string(name: 'AWS_REGION', defaultValue: 'ap-south-1', description: 'AWS region for deployment')
-        string(name: 'ECR_REPO', defaultValue: '744074487898.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo', description: 'ECR repository URI')
+        string(name: 'ECR_REPO', defaultValue: '332848642864.dkr.ecr.ap-south-1.amazonaws.com/vprofileappimg', description: 'ECR repository URI')
         string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag') 
         string(name: 'jar', defaultValue: 'https://github.com/macagua/example.java.helloworld/archive/refs/heads/master.zip')
     }
@@ -10,8 +10,8 @@ parameters {
 
 
     tools {
-        maven 'Maven3.8.2'
-        jdk 'openJDK11'
+        maven "MAVEN3.9"
+        jdk "JDK17"
 
     }
 
