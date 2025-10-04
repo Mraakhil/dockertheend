@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent any agent {
+        docker {
+            image 'amazon/aws-cli:latest'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
 parameters {
         string(name: 'AWS_REGION', defaultValue: 'ap-south-1', description: 'AWS region for deployment')
         string(name: 'ECR_REPO', defaultValue: '332848642864.dkr.ecr.ap-south-1.amazonaws.com', description: 'ECR repository URI')
@@ -21,13 +26,7 @@ parameters {
                 git url: 'https://github.com/Mraakhil/dockertheend.git', branch: 'main'
             }
         }
-       pipeline {
-    agent {
-        docker {
-            image 'amazon/aws-cli:latest'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+      
 
     stages {
         stage('Verify Tools') {
@@ -36,8 +35,6 @@ parameters {
                 sh 'docker --version'
             }
         }
-    }
-}
 
 
 
