@@ -1,18 +1,21 @@
 pipeline {
     agent any
-parameters {
+
+    parameters {
         string(name: 'AWS_REGION', defaultValue: 'ap-south-1', description: 'AWS region for deployment')
-        string(name: 'ECR_REPO', defaultValue: '744074487898.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo', description: 'ECR repository URI')
-        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag') 
-        string(name: 'jar', defaultValue: 'https://github.com/macagua/example.java.helloworld/archive/refs/heads/master.zip')
+        string(name: 'ECR_REPO', defaultValue: '332848642864.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo', description: 'ECR repository URI')
+        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag')
+        string(name: 'JAR_URL', defaultValue: 'https://github.com/macagua/example.java.helloworld/archive/refs/heads/master.zip', description: 'JAR package URL')
     }
 
-
-
     tools {
-        maven 'Maven3.8.2'
-        jdk 'openJDK11'
+        maven "MAVEN3.9"
+        jdk "JDK17"
+        dockerTool "DOCKER"
+    }
 
+    environment {
+        PATH = "$PATH:/usr/local/bin"
     }
 
     stages {
@@ -22,34 +25,65 @@ parameters {
             }
         }
 
+        stage('Verify Tools') {
+            steps {
+                sh '''
+                echo "Verifying AWS CLI and Docker..."
+                aws --version || echo "AWS CLI not found"
+                docker --version || echo "Docker not found"
+                '''
+            }
+        }
+
         stage('Login to AWS ECR') {
             steps {
-                sh 'aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO'
+                sh '''
+                echo "Logging into AWS ECR..."
+                aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REPO%/*}
+                '''
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                //sh "docker build -t my-ecr-repo --build-arg PACKAGE=${jar} ."
-                sh "docker build -t my-ecr-repo --build-arg PACKAGE=${params.jar} ."
+                sh '''
+                echo "Building Docker image..."
+                docker build -t my-ecr-repo --build-arg PACKAGE=${JAR_URL} .
+                '''
             }
         }
 
         stage('Tag Docker Image') {
             steps {
-                sh 'docker tag my-ecr-repo:latest $ECR_REPO:$IMAGE_TAG'
+                sh '''
+                echo "Tagging Docker image..."
+                docker tag my-ecr-repo:latest ${ECR_REPO}:${IMAGE_TAG}
+                '''
             }
         }
 
         stage('Push Docker Image to ECR') {
             steps {
-                sh 'docker push $ECR_REPO:$IMAGE_TAG'
+                sh '''
+                echo "Pushing Docker image to ECR..."
+                docker push ${ECR_REPO}:${IMAGE_TAG}
+                '''
             }
         }
-        stage('Run Docker Image') {
+
+        stage('Run Docker Container') {
             steps {
-                sh 'docker run -p 8082:8080 $ECR_REPO:$IMAGE_TAG'
+                sh '''
+                echo "Running Docker container..."
+                docker run -d -p 8082:8080 ${ECR_REPO}:${IMAGE_TAG}
+                '''
             }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker logout ${ECR_REPO%/*} || true'
         }
     }
 }
