@@ -21,25 +21,24 @@ parameters {
                 git url: 'https://github.com/Mraakhil/dockertheend.git', branch: 'main'
             }
         }
-        stage('Install AWS CLI and Docker') {
-          steps {
-        sh '''
-        echo "Installing AWS CLI and Docker if missing..."
-        if ! command -v aws >/dev/null 2>&1; then
-          sudo apt-get update -y
-          sudo apt-get install -y awscli
-        fi
+       pipeline {
+    agent {
+        docker {
+            image 'amazon/aws-cli:latest'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
 
-        if ! command -v docker >/dev/null 2>&1; then
-          sudo apt-get install -y docker.io
-          sudo systemctl start docker || true
-        fi
+    stages {
+        stage('Verify Tools') {
+            steps {
+                sh 'aws --version'
+                sh 'docker --version'
+            }
+        }
+    }
+}
 
-        docker --version
-        aws --version
-        '''
-           }
-       }
 
 
         stage('Login to AWS ECR') {
