@@ -1,89 +1,57 @@
 pipeline {
     agent any
 
-    parameters {
-        string(name: 'AWS_REGION', defaultValue: 'ap-south-1', description: 'AWS region for deployment')
-        string(name: 'ECR_REPO', defaultValue: '332848642864.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-repo', description: 'ECR repository URI')
-        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag')
-        string(name: 'JAR_URL', defaultValue: 'https://github.com/macagua/example.java.helloworld/archive/refs/heads/master.zip', description: 'JAR package URL')
-    }
-
-    tools {
-        maven "MAVEN3.9"
-        jdk "JDK17"
-        dockerTool "DOCKER"
-    }
-
     environment {
-        PATH = "$PATH:/usr/local/bin"
+        AWS_ACCOUNT_ID = '332848642864' // replace with your account ID
+        AWS_REGION = 'ap-south-1'
+        ECR_REPO = 'my-ecr-repo' // replace with your ECR repo
+        IMAGE_TAG = "latest"
+        NEXUS_CREDENTIALS = credentials('nexus-credentials-id') // Jenkins credentials
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Download Artifact from Nexus') {
             steps {
-                git url: 'https://github.com/Mraakhil/dockertheend.git', branch: 'main'
-            }
-        }
-
-        stage('Verify Tools') {
-            steps {
-                sh '''
-                echo "Verifying AWS CLI and Docker..."
-                aws --version || echo "AWS CLI not found"
-                docker --version || echo "Docker not found"
-                '''
-            }
-        }
-
-        stage('Login to AWS ECR') {
-            steps {
-                sh '''
-                echo "Logging into AWS ECR..."
-                aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REPO%/*}
-                '''
+                script {
+                    // Example for downloading via curl
+                    sh """
+                    curl -u ${NEXUS_CREDENTIALS_USR}:${NEXUS_CREDENTIALS_PSW} \
+                    -O http://nexus-server/repository/maven-releases/com/example/myapp/1.0/myapp-1.0.jar
+                    """
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh '''
-                echo "Building Docker image..."
-                docker build -t my-ecr-repo --build-arg PACKAGE=${JAR_URL} .
-                '''
+                script {
+                    sh """
+                    docker build -t ${ECR_REPO}:${IMAGE_TAG} .
+                    """
+                }
             }
         }
 
-        stage('Tag Docker Image') {
+        stage('Login to AWS ECR') {
             steps {
-                sh '''
-                echo "Tagging Docker image..."
-                docker tag my-ecr-repo:latest ${ECR_REPO}:${IMAGE_TAG}
-                '''
+                script {
+                    sh """
+                    aws ecr get-login-password --region ${AWS_REGION} | \
+                    docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                    """
+                }
             }
         }
 
-        stage('Push Docker Image to ECR') {
+        stage('Push to ECR') {
             steps {
-                sh '''
-                echo "Pushing Docker image to ECR..."
-                docker push ${ECR_REPO}:${IMAGE_TAG}
-                '''
+                script {
+                    sh """
+                    docker tag ${ECR_REPO}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}
+                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}
+                    """
+                }
             }
-        }
-
-        stage('Run Docker Container') {
-            steps {
-                sh '''
-                echo "Running Docker container..."
-                docker run -d -p 8082:8080 ${ECR_REPO}:${IMAGE_TAG}
-                '''
-            }
-        }
-    }
-
-    post {
-        always {
-            sh 'docker logout ${ECR_REPO%/*} || true'
         }
     }
 }
